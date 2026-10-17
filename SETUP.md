@@ -32,8 +32,8 @@ You should see 5 leads classified (1 UPDATE, 2 CREATE, 2 REVIEW), 2 dropped rows
 
 | File | What to do with it |
 |---|---|
-| `out/import_update.csv` | Import with **Record ID** as the match key; it updates existing contacts |
-| `out/import_create.csv` | Import with **Email** as the match key; it creates new contacts |
+| `out/import_update.csv` | Import with **Create and update**, matched on **Email**; it updates existing contacts |
+| `out/import_create.csv` | Import the same way (matched on **Email**); it creates new contacts |
 | `out/needs_review.csv` | Fix by hand first. These are the rows that would have become duplicates or failed |
 
 All the flags:
@@ -103,7 +103,7 @@ and write the rows to CSV. Map `hs_object_id` to `Record ID`, and resolve `hubsp
 
 ### 4c. Importing the results
 
-- **HubSpot:** Contacts → Import → File from computer → One file, one object → Contacts. For `import_update.csv`, choose *Update existing contacts* and match on **Record ID**. Leave Lifecycle Stage and Lead Source unmapped so you don't overwrite them. `Recent Lead Source` maps to a custom contact property (`recent_lead_source`, Dropdown select with an `Event` option), which you create before the import. Import 10–20 rows first and check them.
+- **HubSpot:** Contacts → Import → File from computer → One file, one object → Contacts. For both files, choose *Create and update contacts* and match on **Email** (import `import_update.csv` first, then `import_create.csv`). Matching on Record ID also works, but only if your CRM export came from the same HubSpot portal. Leave Lifecycle Stage and Lead Source unmapped so you don't overwrite them. `Recent Lead Source` maps to a custom contact property (`recent_lead_source`, Dropdown select with an `Event` option), which you create before the import. Import 10–20 rows first and check them.
 - **Salesforce:** create one Campaign per event with the statuses from `STATUS_MAP` (Visited Booth, Attended Session, Responded). Add a `Campaign ID` column to the files, then Campaign → Manage Members → Add Members - Import File → *Add new and update existing*, matching Leads by Email.
 - **Marketo:** import into a static list inside the event program and set the program as the Acquisition Program. Emails must be ASCII, which the agent's normaliser already handles for whitespace and case.
 

@@ -10,6 +10,30 @@ This agent does the boring, risky part in seconds. It takes the raw event list a
 
 ---
 
+## 🎬 Demo
+
+![Terminal demo: the agent cleaning, deduping and routing a sample event list](docs/demo-terminal.gif)
+
+**[▶ Watch the full 4-minute walkthrough (GitHub → terminal → review → HubSpot import → lead source)](docs/demo-hubspot.mp4)**
+
+The video uses a demo HubSpot account with fictional sample contacts only.
+
+---
+
+## 🗺 Where each step runs
+
+If you can create a repo but aren't sure where you actually *run* this, here's the whole flow in order:
+
+1. **GitHub:** clone the repo (`git clone https://github.com/rubianaseem/event-lead-import-agent.git`), or click **Code → Download ZIP** and unzip it.
+2. **Terminal on your laptop, or the terminal inside Cursor:** create a virtual environment, `pip install -r requirements.txt`, then run the script on your event CSV plus a CRM export (see [Quick start](#-quick-start)). It works with no API key. If you add `ANTHROPIC_API_KEY` to `.env`, it uses Claude via the API to write the brief. This is **not** the Claude chat app; you don't paste anything into a chat window.
+3. **You, in a spreadsheet or editor:** open `out/needs_review.csv` and decide what to do with each held row (merge, fix the email, or skip it).
+4. **HubSpot:** first create the custom contact property `recent_lead_source` (see [Lead source](#lead-source)). Then go to **Contacts → Import**. Import `import_update.csv` with **Create and update**, matched on **Email**, then import `import_create.csv` the same way. Map the `Recent Lead Source` column to `recent_lead_source`.
+5. **Salesforce alternative:** load the same files with Salesforce's **Data Import Wizard**, or import them into HubSpot and let HubSpot's Salesforce connector sync them across. The connector needs HubSpot Professional or Enterprise ([HubSpot: Connect HubSpot and Salesforce](https://knowledge.hubspot.com/salesforce/install-the-hubspot-salesforce-integration)).
+
+**The agent never writes to your CRM.** It only creates files on your computer, and you do the import.
+
+---
+
 ## 🧠 The pain point (real, recurring, everywhere)
 
 The same pattern comes up again and again in Marketing Ops and HubSpot communities:
@@ -64,6 +88,8 @@ python event_lead_import_agent.py \
 
 Optional: `cp .env.example .env` and add `ANTHROPIC_API_KEY` so Claude writes the brief. Full walkthrough in [SETUP.md](SETUP.md).
 
+Then review `out/needs_review.csv` and import the files, as described in [Where each step runs](#-where-each-step-runs).
+
 ---
 
 ## 📟 Example output (sample data, no API key)
@@ -105,8 +131,8 @@ IMPORT QA BRIEF: SaaS Ops Summit London 2026
 
 Before you import:
   1. Clear needs_review.csv first (2 row(s)). These are the ones that become duplicates.
-  2. Import import_update.csv with Record ID as the match key. Untick 'overwrite' for Lifecycle Stage / Lead Source.
-  3. Import import_create.csv with Email as the match key, then spot-check 5 rows.
+  2. Import import_update.csv (Create and update, match on Email). Don't map Lifecycle Stage / original Lead Source.
+  3. Import import_create.csv the same way (match on Email), then spot-check 5 rows.
   4. 1 contact(s) have blank consent. Set as non-marketing until confirmed.
 
 SALES FOLLOW-UP HANDOFF (hot leads)
@@ -160,6 +186,8 @@ Everything you'll want to tune is at the top of `event_lead_import_agent.py`:
 
 ### Lead source
 
+![HubSpot contacts showing Recent Lead Source = Event after the import](docs/lead-source-event.gif)
+
 `import_update.csv` and `import_create.csv` include a `Recent Lead Source` column (default `Event`). It's a *recent* touch field, kept separate from the original lead source, so it's safe to stamp on existing Opportunities and Customers. The agent still flags those so you don't overwrite their lifecycle stage or original lead source.
 
 | CRM | Where the column lands |
@@ -203,10 +231,14 @@ event-lead-import-agent/
 ├── sample_crm_contacts.csv      # 4-row CRM export to match against
 ├── requirements.txt
 ├── .env.example
+├── docs/
+│   ├── demo-terminal.gif        # terminal run on the sample data
+│   ├── demo-hubspot.mp4         # full walkthrough: GitHub → terminal → review → HubSpot import
+│   └── lead-source-event.gif    # Recent Lead Source = Event in HubSpot
 ├── SETUP.md                     # step-by-step setup, real data sources, extending with AI coding tools
 └── README.md
 ```
 
 ---
 
-Built by **Rubia Naseem**, GTM Engineer. If you run events and own the CRM afterwards, I'd love to hear which edge cases your lists throw at you.
+If you run events and own the CRM afterwards, I'd love to hear which edge cases your lists throw at you.

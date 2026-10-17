@@ -36,6 +36,7 @@ This agent follows that consensus. It's deterministic where it has to be (matchi
 - **Lifecycle guardrails:** flags existing Opportunities and Customers so you don't overwrite lifecycle stage or lead source
 - **Consent kept separate:** `opted_in` / `no_consent` / `unknown`, and blank consent is **never** treated as opt-in
 - **Campaign member status + intent:** scan type maps to `Visited Booth` / `Attended Session`, and booth notes like "wants demo" or "pricing" become `Responded` + `HOT`
+- **Recent lead source:** every update and create row gets a `Recent Lead Source` column set to `Event` (change it with `--lead-source` or `LEAD_SOURCE_VALUE`)
 - **Three import-ready CSVs:** `import_update.csv`, `import_create.csv`, `needs_review.csv`
 - **QA brief + sales handoff:** written by Claude if you add a key, or by a solid template if you don't
 
@@ -156,6 +157,17 @@ Everything you'll want to tune is at the top of `event_lead_import_agent.py`:
 - **`PERSONAL_DOMAINS`:** extend this for your markets (e.g. `web.de`, `orange.fr`, `qq.com`)
 - **Output columns:** rename them in `write_outputs()` to your internal property names, so the HubSpot import wizard maps them automatically
 - **Routing:** `classify()` currently routes new contacts at known accounts to the existing owner. Plug in your round-robin or territory rules there.
+
+### Lead source
+
+`import_update.csv` and `import_create.csv` include a `Recent Lead Source` column (default `Event`). It's a *recent* touch field, kept separate from the original lead source, so it's safe to stamp on existing Opportunities and Customers. The agent still flags those so you don't overwrite their lifecycle stage or original lead source.
+
+| CRM | Where the column lands |
+|---|---|
+| HubSpot | Create a custom contact property first: label **Recent Lead Source**, internal name `recent_lead_source`, type Dropdown select, with an option whose label and internal value are both `Event`. The header then auto-maps in the import wizard. HubSpot's built-in Original Source / Latest Source properties are set by HubSpot's own tracking, so they aren't the right target. |
+| Salesforce | For new leads, map it to the standard **Lead Source** picklist (`LeadSource`); add `Event` as a picklist value if it's not already there. For existing records, map it to a custom field such as `Recent_Lead_Source__c` instead, so you don't overwrite the original Lead Source. |
+
+Use `--lead-source "Conference"` to change the value, or `--lead-source ""` to leave the column out.
 
 If you're on Salesforce, add a `Campaign ID` column to `import_create.csv` and load it from the Campaign's *Manage Members → Add Members - Import File* flow. That sets the campaign and the Member Status in one pass.
 

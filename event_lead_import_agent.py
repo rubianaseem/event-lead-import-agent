@@ -11,11 +11,13 @@ into import-ready files for HubSpot or Salesforce, *before* anything touches the
   4. Matches every row against a CRM export: update by Record ID, create new, or hold for review
   5. Maps scan type + booth notes to a campaign member status and an intent flag
   6. Keeps consent as its own column and never invents opt-in
+     (and stamps a "Recent Lead Source" column, default "Event", on update + create rows)
   7. Writes an import QA brief + a sales follow-up handoff (Claude if ANTHROPIC_API_KEY is set, template otherwise)
 
 Runs with zero API keys. Usage:
     python event_lead_import_agent.py
     python event_lead_import_agent.py --events my_show.csv --crm hubspot_export.csv --event-name "SaaStr London 2026"
+    python event_lead_import_agent.py --lead-source "Conference"   # or --lead-source "" to leave the column out
 """
 from __future__ import annotations
 
@@ -67,6 +69,14 @@ STATUS_MAP = {  # scan type keyword -> campaign member status
     "no-show": "No Show",
     "attend": "Attended",
 }
+# Recent lead source stamped on every update + create row. The header matches a
+# HubSpot custom contact property labelled "Recent Lead Source" (internal name
+# recent_lead_source) so the import wizard auto-maps it. On Salesforce, map it to a
+# custom field (e.g. Recent_Lead_Source__c) or to the standard Lead Source picklist
+# on new leads only; see README "Lead source". Set LEAD_SOURCE_VALUE="" to disable.
+LEAD_SOURCE_COLUMN = os.getenv("LEAD_SOURCE_COLUMN", "Recent Lead Source")
+LEAD_SOURCE_VALUE = os.getenv("LEAD_SOURCE_VALUE", "Event")
+
 COMPANY_SUFFIXES = re.compile(r"[,\s]+(inc\.?|ltd\.?|limited|llc|gmbh|plc|co\.?|corp\.?|s\.?a\.?)$", re.I)
 EMAIL_RE = re.compile(r"^[a-z0-9._%+'-]+@[a-z0-9.-]+\.[a-z]{2,}$")
 
@@ -307,10 +317,13 @@ def classify(leads: list[Lead], crm_rows: list[dict]) -> None:
             lead.crm_owner = owner
 
 
-def write_outputs(leads: list[Lead], dropped: list[Lead], event_name: str, out_dir: Path) -> dict[str, Path]:
+def write_outputs(leads: list[Lead], dropped: list[Lead], event_name: str, out_dir: Path,
+                  lead_source: str = LEAD_SOURCE_VALUE) -> dict[str, Path]:
     out_dir.mkdir(exist_ok=True)
     cols = ["Record ID", "Email", "First Name", "Last Name", "Job Title", "Company", "Phone",
             "Event Name", "Campaign Member Status", "Marketing Consent", "Event Intent", "Event Notes"]
+    if lead_source:
+        cols.append(LEAD_SOURCE_COLUMN)
 
     def row(l: Lead) -> dict:
         return {
@@ -318,6 +331,7 @@ def write_outputs(leads: list[Lead], dropped: list[Lead], event_name: str, out_d
             "Job Title": l.title, "Company": l.company, "Phone": l.phone, "Event Name": event_name,
             "Campaign Member Status": "Responded" if "Responded" in l.statuses else l.status,
             "Marketing Consent": l.consent, "Event Intent": l.intent, "Event Notes": "; ".join(l.notes),
+            **({LEAD_SOURCE_COLUMN: lead_source} if lead_source else {}),
         }
 
     files = {}
@@ -429,6 +443,8 @@ def main() -> int:
     ap.add_argument("--event-name", default=os.getenv("EVENT_NAME", "SaaS Ops Summit London 2026"))
     ap.add_argument("--internal-domains", default=os.getenv("INTERNAL_DOMAINS", "ourcompany.com"))
     ap.add_argument("--out", default=str(here / "out"))
+    ap.add_argument("--lead-source", default=LEAD_SOURCE_VALUE,
+                    help=f"value for the '{LEAD_SOURCE_COLUMN}' column on update + create rows (default: Event; \"\" to omit)")
     args = ap.parse_args()
 
     events_path, crm_path = Path(args.events), Path(args.crm)
@@ -444,7 +460,7 @@ def main() -> int:
     leads, dropped = parse_events(raw, internal)
     leads, merges = merge_duplicates(leads)
     classify(leads, crm_rows)
-    files = write_outputs(leads, dropped, args.event_name, Path(args.out))
+    files = write_outputs(leads, dropped, args.event_name, Path(args.out), args.lead_source.strip())
 
     bar = "=" * 72
     print(bar)

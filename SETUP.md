@@ -45,6 +45,7 @@ python event_lead_import_agent.py --help
 #  --event-name         stamped on every row (or EVENT_NAME in .env)
 #  --internal-domains   comma-separated; rows on these domains are dropped as booth staff
 #  --out                output folder (default ./out)
+#  --lead-source        value for the "Recent Lead Source" column (default Event, or LEAD_SOURCE_VALUE in .env; "" to omit)
 ```
 
 ---
@@ -102,7 +103,7 @@ and write the rows to CSV. Map `hs_object_id` to `Record ID`, and resolve `hubsp
 
 ### 4c. Importing the results
 
-- **HubSpot:** Contacts → Import → File from computer → One file, one object → Contacts. For `import_update.csv`, choose *Update existing contacts* and match on **Record ID**. Leave Lifecycle Stage and Lead Source unmapped so you don't overwrite them. Import 10–20 rows first and check them.
+- **HubSpot:** Contacts → Import → File from computer → One file, one object → Contacts. For `import_update.csv`, choose *Update existing contacts* and match on **Record ID**. Leave Lifecycle Stage and Lead Source unmapped so you don't overwrite them. `Recent Lead Source` maps to a custom contact property (`recent_lead_source`, Dropdown select with an `Event` option), which you create before the import. Import 10–20 rows first and check them.
 - **Salesforce:** create one Campaign per event with the statuses from `STATUS_MAP` (Visited Booth, Attended Session, Responded). Add a `Campaign ID` column to the files, then Campaign → Manage Members → Add Members - Import File → *Add new and update existing*, matching Leads by Email.
 - **Marketo:** import into a static list inside the event program and set the program as the Acquisition Program. Emails must be ASCII, which the agent's normaliser already handles for whitespace and case.
 

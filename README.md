@@ -6,7 +6,7 @@ Every conference ends the same way. Someone drops a badge-scan CSV in Slack, the
 
 This agent does the boring, risky part in seconds. It takes the raw event list and your CRM export, then tells you exactly which rows to **update**, which to **create**, which to **hold for review**, and which to **drop**. It also writes a short import QA brief and a sales follow-up handoff for the hot leads.
 
-> I'm Rubia, a GTM Engineer with 12+ years in CRM and RevOps, working mostly in HubSpot and Salesforce, and building with Clay, Cursor, n8n and Claude Code. I've built product activation agents and signal-triggered routing agents that ran in production at Speechmatics and Six & Flow. Post-event imports are the job I've watched break CRMs most often, so this is the pre-flight check I wish every team ran.
+> Built by Rubia Naseem, GTM Engineer (12+ yrs CRM/RevOps, HubSpot & Salesforce).
 
 ---
 

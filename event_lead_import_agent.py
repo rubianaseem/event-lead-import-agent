@@ -389,8 +389,8 @@ def template_brief(leads, dropped, merges, total_rows, event_name) -> str:
     ]
     if c["review"]:
         out.append(f"  1. Clear needs_review.csv first ({c['review']} row(s)). These are the ones that become duplicates.")
-    out.append("  2. Import import_update.csv with Record ID as the match key. Untick 'overwrite' for Lifecycle Stage / Lead Source.")
-    out.append("  3. Import import_create.csv with Email as the match key, then spot-check 5 rows.")
+    out.append("  2. Import import_update.csv (Create and update, match on Email). Don't map Lifecycle Stage / original Lead Source.")
+    out.append("  3. Import import_create.csv the same way (match on Email), then spot-check 5 rows.")
     unknown = sum(1 for l in leads if l.consent == "unknown")
     if unknown:
         out.append(f"  4. {unknown} contact(s) have blank consent. Set as non-marketing until confirmed.")
@@ -444,7 +444,8 @@ def main() -> int:
     ap.add_argument("--internal-domains", default=os.getenv("INTERNAL_DOMAINS", "ourcompany.com"))
     ap.add_argument("--out", default=str(here / "out"))
     ap.add_argument("--lead-source", default=LEAD_SOURCE_VALUE,
-                    help=f"value for the '{LEAD_SOURCE_COLUMN}' column on update + create rows (default: Event; \"\" to omit)")
+                    help=f"value for the '{LEAD_SOURCE_COLUMN}' column on update + create rows "
+                         f"(default: {LEAD_SOURCE_VALUE!r}, from LEAD_SOURCE_VALUE; \"\" to omit)")
     args = ap.parse_args()
 
     events_path, crm_path = Path(args.events), Path(args.crm)

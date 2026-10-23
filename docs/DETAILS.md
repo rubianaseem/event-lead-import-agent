@@ -13,7 +13,7 @@ This agent does the boring, risky part in seconds. It takes the raw event list a
 If you can create a repo but aren't sure where you actually *run* this, here's the whole flow in order:
 
 1. **GitHub:** clone the repo (`git clone https://github.com/rubianaseem/event-lead-import-agent.git`), or click **Code → Download ZIP** and unzip it.
-2. **Terminal on your laptop, or the terminal inside Cursor:** create a virtual environment, `pip install -r requirements.txt`, then run the script on your event CSV plus a CRM export (see [Quick start](../README.md#-quick-start)). It works with no API key. If you add `ANTHROPIC_API_KEY` to `.env`, it uses Claude via the API to write the brief. This is **not** the Claude chat app; you don't paste anything into a chat window.
+2. **Terminal on your laptop, or the terminal inside Cursor:** create a virtual environment, `pip install -r requirements.txt`, then run the script on your event CSV plus a CRM export (see [Quick start](../README.md#quick-start)). It works with no API key. If you add `ANTHROPIC_API_KEY` to `.env`, it uses Claude via the API to write the brief. This is **not** the Claude chat app; you don't paste anything into a chat window.
 3. **You, in a spreadsheet or editor:** open `out/needs_review.csv` and decide what to do with each held row (merge, fix the email, or skip it).
 4. **HubSpot:** first create the custom contact property `recent_lead_source` (see [Lead source](#lead-source)). Then go to **Contacts → Import**. Import `import_update.csv` with **Create and update**, matched on **Email**, then import `import_create.csv` the same way. Map the `Recent Lead Source` column to `recent_lead_source`.
 5. **Salesforce alternative:** load the same files with Salesforce's **Data Import Wizard**, or import them into HubSpot and let HubSpot's Salesforce connector sync them across. The connector needs HubSpot Professional or Enterprise ([HubSpot: Connect HubSpot and Salesforce](https://knowledge.hubspot.com/salesforce/install-the-hubspot-salesforce-integration)).
@@ -70,7 +70,7 @@ python event_lead_import_agent.py \
 
 Optional: `cp .env.example .env` and add `ANTHROPIC_API_KEY` so Claude writes the brief. Full walkthrough in [SETUP.md](../SETUP.md).
 
-Then review `out/needs_review.csv` and import the files, as described in [Where each step runs](../README.md#-where-each-step-runs).
+Then review `out/needs_review.csv` and import the files, as described in [Where each step runs](../README.md#where-each-step-runs).
 
 ## Full example output (sample data, no API key)
 
@@ -131,12 +131,12 @@ SALES FOLLOW-UP HANDOFF (hot leads)
 ========================================================================
 ```
 
-## 💷 Cost
+## Cost
 
 - **Without an API key:** free. Everything runs locally in plain Python (standard library only).
 - **With `ANTHROPIC_API_KEY`:** one Claude call per run to write the brief. For a list this size that's a few thousand tokens, roughly a cent or two at current Sonnet pricing ([check Anthropic's pricing page](https://www.anthropic.com/pricing)). Matching and dedupe never use the LLM, so a 2,000-row list costs about the same as an 8-row one; only the brief grows.
 
-## 🔁 Stack swap table
+## Stack swap table
 
 | Layer | In this repo | Swap for |
 |---|---|---|
@@ -147,7 +147,7 @@ SALES FOLLOW-UP HANDOFF (hot leads)
 | Output | Local CSVs + console | HubSpot Imports API, Salesforce Data Import Wizard / Bulk API, a Slack message to the event owner |
 | Orchestration | You run it | n8n, Zapier or Make triggered when a file lands in a Drive folder |
 
-## 🛠 Customise it for your stack (and lead source)
+## Customise it for your stack (and lead source)
 
 Everything you'll want to tune is at the top of `event_lead_import_agent.py`:
 
@@ -173,7 +173,7 @@ Use `--lead-source "Conference"` to change the value, or `--lead-source ""` to l
 
 If you're on Salesforce, add a `Campaign ID` column to `import_create.csv` and load it from the Campaign's *Manage Members → Add Members - Import File* flow. That sets the campaign and the Member Status in one pass.
 
-## 🧭 How this runs today (and what production would add)
+## How this runs today (and what production would add)
 
 I want to be straight about what this is: a solid, working **pre-flight checker**, not a hands-off system.
 
@@ -192,7 +192,7 @@ I want to be straight about what this is: a solid, working **pre-flight checker*
 - A feedback loop, so reviewer decisions update matching rules and keyword lists over time
 - An audit log of every create, update and merge for attribution and compliance
 
-## 📁 What's in the repo
+## What's in the repo
 
 ```
 event-lead-import-agent/

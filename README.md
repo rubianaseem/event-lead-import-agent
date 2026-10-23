@@ -1,4 +1,4 @@
-# 🎪 Event Lead Import Agent
+# Event Lead Import Agent
 
 **Turn a messy post-event lead list into clean, deduplicated, CRM-ready import files, before it touches HubSpot or Salesforce.**
 
@@ -6,17 +6,17 @@
 
 ---
 
-## 🎬 Demo
+## Demo
 
 ![Terminal demo: the agent cleaning, deduping and routing a sample event list](docs/demo-terminal.gif)
 
-**[▶ Watch the full 4-minute walkthrough (GitHub → terminal → review → HubSpot import → lead source)](docs/demo-hubspot.mp4)**
+**[Watch the full 4-minute walkthrough (GitHub → terminal → review → HubSpot import → lead source)](docs/demo-hubspot.mp4)**
 
 The video uses a demo HubSpot account with fictional sample contacts only.
 
 ---
 
-## 🧠 The pain point
+## The pain point
 
 Every conference ends the same way. Someone drops a badge-scan CSV in Slack, the columns don't match your properties, and it gets imported anyway. HubSpot creates "new" contacts that already existed, sales gets a cold list a week late, and Marketing Ops spends the next fortnight merging duplicates.
 
@@ -25,7 +25,7 @@ Every conference ends the same way. Someone drops a badge-scan CSV in Slack, the
 
 ---
 
-## ✨ What it does
+## What it does
 
 - **Cleans the list:** maps messy column headers, lowercases emails, splits `Name - Title`, fixes ALL-CAPS names and formats UK mobiles
 - **Drops junk and dedupes:** removes blank and `TBD` rows and your own booth staff, and merges in-file duplicates with the *most restrictive* consent
@@ -36,7 +36,7 @@ Every conference ends the same way. Someone drops a badge-scan CSV in Slack, the
 
 ---
 
-## 🗺 Where each step runs
+## Where each step runs
 
 1. **GitHub** holds the code. Clone it or click **Code → Download ZIP**.
 2. **Terminal** is where you run it on your event CSV plus a CRM export. It works with no API key; with `ANTHROPIC_API_KEY` in `.env`, Claude writes the brief via the API, not the chat app.
@@ -48,7 +48,7 @@ Every conference ends the same way. Someone drops a badge-scan CSV in Slack, the
 
 ---
 
-## 🚀 Quick start
+## Quick start
 
 ```bash
 git clone https://github.com/rubianaseem/event-lead-import-agent.git
@@ -62,7 +62,7 @@ Use your own files with `--events`, `--crm`, `--event-name` and `--internal-doma
 
 ---
 
-## 📟 Example output
+## Example output
 
 On the sample data, with no API key:
 
@@ -80,7 +80,7 @@ IMPORT QA BRIEF: SaaS Ops Summit London 2026
 
 ---
 
-## 📚 More
+## More
 
 - [SETUP.md](SETUP.md): virtual environment, sample run, API key, connecting real data sources, extending it, troubleshooting
 - [docs/DETAILS.md](docs/DETAILS.md): all the pain-point quotes, full feature list and example output, cost, stack swap table, customising, [lead source](docs/DETAILS.md#lead-source) setup for HubSpot and Salesforce, how this runs today vs production, and what's in the repo
